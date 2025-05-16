@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>School Calendars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Style -->
+ <link rel="stylesheet" href="style.css">
+
+
+
+
+</head>
+<body>
+
+  <header>
+    <img src="temp4cj.png" alt="ULTRA Education" class="logo">
+    <h1>School Calendar Downloads</h1>
+  </header>
+
+  <div class="filters">
+    <label for="genderFilter">Gender:</label>
+    <select id="genderFilter">
+      <option value="any">Any</option>
+      <option value="boys">Boy</option>
+      <option value="girls">Girl</option>
+    </select>
+
+
+    <label for="ageFilter">Entry Age:</label>
+    <input type="number" id="ageFilter" placeholder="e.g. 11" min="1" max="18">
+  </div>
+
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="🔍 Search for a school...">
+  </div>
+
+<!--
+  <ul id="schoolList">
+    {% for school in schools %}
+    <li class="school-card" data-name="{{ school.name | lower }}" data-links="{{ school.tooltip }}" data-search="{{ school.search_blob }}" data-gender-age='{{ school.gender_age_segments | tojson }}'>
+
+      <a href="{{ school.link }}" target="_blank"><span class="school-name">{{ school.name }}</span></a>
+      <div class="school-desc">
+        {{ school.gender_age_segments[0]['answer'] if school.gender_age_segments else '' }}
+      </div>
+      <span>{{ school.event_count }} events</span>
+    </li>
+    {% endfor %}
+  </ul>
+-->
+
+<!--
+  <ul id="schoolList">
+    {% for school in schools %}
+    <li class="school-card"
+        data-name="{{ school.name | lower }}"
+        data-links="{{ school.tooltip }}"
+        data-search="{{ school.search_blob }}"
+        data-gender-age='{{ school.gender_age_segments | tojson }}'>
+      
+      <div class="school-card-left">
+        <a href="{{ school.link }}" target="_blank">
+          <span class="school-name">{{ school.name }}</span>
+        </a>
+      </div>
+
+      <div class="school-card-right">
+        <div class="school-desc">
+          {{ school.gender_age_segments[0]['answer'] if school.gender_age_segments else '' }}
+        </div>
+        <span class="event-count">{{ school.event_count }} events</span>
+      </div>
+      
+    </li>
+    {% endfor %}
+  </ul>
+-->
+
+  <ul id="schoolList">
+    {% for school in schools %}
+    <li class="school-card"
+        data-name="{{ school.name | lower }}"
+        data-links="{{ school.gender_age_segments[0]['answer'] if school.gender_age_segments else '' }}"
+        data-search="{{ school.search_blob }}"
+        data-gender-age='{{ school.gender_age_segments | tojson }}'>
+      
+      <div class="school-card-left">
+        <a href="{{ school.link }}" target="_blank">
+          <span class="school-name">{{ school.name }}</span>
+        </a>
+        <!--
+        <div class="school-desc">
+          {{ school.tooltip }}
+        </div> -->
+        <div class="school-desc short">
+          <span class="desc-text">{{ school.tooltip }}</span>
+          <button class="show-more-btn">Show more</button>
+        </div>
+
+      </div>
+
+      <div class="school-card-right">
+        <span class="event-count">{{ school.event_count }} events</span>
+      </div>
+      
+    </li>
+    {% endfor %}
+  </ul>
+
+
+
+  <!--
+ 
+
+<script>
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    const items = document.querySelectorAll(".school-card");
+
+    items.forEach(item => {
+      const name = item.dataset.name;
+      const links = item.dataset.links;
+      const match = name.includes(query) || links.includes(query);
+      item.style.display = match ? "block" : "none";
+    });
+  });
+</script>
+ -->
+
+
+<!-- 
+<script>
+  const searchInput = document.getElementById("searchInput");
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+
+  searchInput.addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    const items = document.querySelectorAll(".school-card");
+
+    items.forEach(item => {
+      const nameRaw = item.dataset.name;
+      const links = item.dataset.links || "";
+      const searchBlob = item.dataset.search || ""
+
+/*      const match = nameRaw.includes(query) || links.includes(query); */
+      const match = searchBlob.includes(query);
+
+      item.style.display = match ? "block" : "none";
+
+      const nameSpan = item.querySelector(".school-name");
+      const rawText = nameSpan.dataset.original || nameSpan.textContent;
+      nameSpan.dataset.original = rawText;
+
+      if (query && match) {
+        nameSpan.innerHTML = highlightMatch(rawText, query);
+      } else {
+        nameSpan.innerHTML = rawText;
+      }
+    });
+  });
+
+</script>
+-->
+<script>
+  const searchInput = document.getElementById("searchInput");
+  const genderFilter = document.getElementById("genderFilter");
+  const ageFilter = document.getElementById("ageFilter");
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+
+  function filterAndHighlight() {
+    const query = searchInput.value.toLowerCase();
+    const selectedGender = genderFilter?.value || "any";
+    const age = parseInt(ageFilter?.value, 10);
+    const items = document.querySelectorAll(".school-card");
+
+    items.forEach(item => {
+      const nameRaw = item.dataset.name;
+      const links = item.dataset.links || "";
+      const searchBlob = item.dataset.search || "";
+      const genderAgeData = JSON.parse(item.dataset.genderAge || "[]");
+
+      // Filter by gender and age
+      //const matchesGenderAge = genderAgeData.some(entry => {
+      //  const matchesGender = selectedGender === "any" || entry.sex === selectedGender;
+      //  const matchesAge = isNaN(age) || (age >= entry.min_age && age <= entry.max_age);
+      //  return matchesGender && matchesAge;
+      //});
+
+      const matchesGenderAge = genderAgeData.some(entry => {
+        const schoolGender = entry.sex.toLowerCase(); // boys, girls, or co-ed
+
+        const matchesGender =
+          selectedGender === "any" ||
+          schoolGender === selectedGender ||
+          schoolGender === "co-ed";  // Co-ed matches both
+
+        const matchesAge =
+          isNaN(age) || (age >= entry.min_age && age <= entry.max_age);
+
+        return matchesGender && matchesAge;
+      });
+      
+
+
+
+
+      // Filter by text
+      const matchesQuery = searchBlob.includes(query);
+
+      // Final decision
+      const show = matchesQuery && matchesGenderAge;
+      item.style.display = show ? "block" : "none";
+
+      // Highlight name
+      const nameSpan = item.querySelector(".school-name");
+      const rawText = nameSpan.dataset.original || nameSpan.textContent;
+      nameSpan.dataset.original = rawText;
+
+      if (query && matchesQuery) {
+        nameSpan.innerHTML = highlightMatch(rawText, query);
+      } else {
+        nameSpan.innerHTML = rawText;
+      }
+    });
+  }
+
+  // Hook events
+  searchInput.addEventListener("input", filterAndHighlight);
+  genderFilter?.addEventListener("change", filterAndHighlight);
+  ageFilter?.addEventListener("input", filterAndHighlight);
+
+  document.querySelectorAll('.show-more-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const desc = btn.closest('.school-desc');
+      desc.classList.toggle('expanded');
+      btn.textContent = desc.classList.contains('expanded') ? 'Show less' : 'Show more';
+    });
+  });
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+# 🔒 Secrets & Credentials
+keys/
+*.json
+.env
+
+# 🧠 Pipeline Logic (Proprietary)
+managers/
+pipelines/
+main_pipeline.py
+
+# 🗂️ Runtime Files
+logs/
+ics_calendars/*.ics  # Keep only 1–2 example ICS
+
+# 💻 IDE & OS Junk
+.vscode/
+.DS_Store
+keys/*.json
+keys/
